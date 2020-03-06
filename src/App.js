@@ -1,8 +1,12 @@
 import React, {useEffect, useState} from 'react';
-import {parseNexus,FigTree,Nodes,NodeShape,orderByNodeDensity,Branches,annotateNode} from "figtreejs-react"
+import {parseNexus,FigTree,Nodes,collapseUnsupportedNodes,orderByNodeDensity,Branches,annotateNode} from "figtreejs-react"
 import{tsv} from "d3-fetch";
 import {schemeTableau10,schemeSet3} from "d3-scale-chromatic";
 import {scaleOrdinal} from "d3-scale";
+
+const processTree=tree=> {
+    return collapseUnsupportedNodes(orderByNodeDensity(tree, false), node => node.annotations.posterior < 0.5);
+};
 
 function App() {
 
@@ -11,7 +15,7 @@ function App() {
     fetch(process.env.PUBLIC_URL+"/data/exp.MCC.txt")
         .then(res=> res.text())
         .then(text=> {
-          let tree= orderByNodeDensity(parseNexus(text,{datePrefix: "|",dateFormat:"%Y-%m-%d"})[0]);
+          let tree= processTree(parseNexus(text,{datePrefix: "|",dateFormat:"%Y-%m-%d"})[0]);
             tsv(process.env.PUBLIC_URL+"/data/location_trait.txt")
                 .then((data)=>{
                     for(const tip of data){
@@ -22,22 +26,17 @@ function App() {
         })
   },[]);
 
-  const width=1000,height=800,margins={top:50,right:50,bottom:75,left:20};
+  const width=1000,height=600,margins={top:50,right:50,bottom:75,left:20};
 
   if(tree!==null){
-      // npm install d3-color
-      //
       const scheme = schemeTableau10.concat(schemeSet3);
-      console.log(tree);
       const colorScale = scaleOrdinal().domain(tree.annotationTypes.location.values).range(scheme);
       return (
           <svg width={width} height={height}>
               <FigTree width={width} height={height} margins={margins} tree={tree}>
-                  <Nodes filter={(v=>v.node.children===null)}>
-                      <NodeShape attrs={{r:4,fill:v=>colorScale(v.node.annotations.location)}} hoveredAttrs={{r:9}}/>
-                  </Nodes>
+                  <Nodes.Circle filter={(v=>v.node.children===null)} attrs={{r:4,fill:v=>colorScale(v.node.annotations.location)}} hoveredAttrs={{r:9}}/>
                   <Branches/>
-                  </FigTree>
+              </FigTree>
           </svg>
       )
   }else{
