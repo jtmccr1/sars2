@@ -1,13 +1,15 @@
 import React, {useEffect, useState} from 'react';
-import {parseNexus,FigTree,Nodes,collapseUnsupportedNodes,orderByNodeDensity,Branches,annotateNode} from "figtreejs-react"
+import {parseNexus,FigTree,Nodes,collapseUnsupportedNodes,
+    orderByNodeDensity,Branches,annotateNode,Axis,
+AxisBars} from "figtreejs-react"
 import{tsv} from "d3-fetch";
 import {schemeTableau10,schemeSet3} from "d3-scale-chromatic";
-import {scaleOrdinal} from "d3-scale";
+import {scaleOrdinal, scaleTime} from "d3-scale";
+import {timeFormat} from "d3-time-format";
 
 const processTree=tree=> {
     return collapseUnsupportedNodes(orderByNodeDensity(tree, false), node => node.annotations.posterior < 0.5);
 };
-
 function App() {
 
   const [tree,setTree]=useState(null);
@@ -29,13 +31,20 @@ function App() {
   const width=1000,height=600,margins={top:50,right:50,bottom:75,left:20};
 
   if(tree!==null){
+      console.log(tree)
       const scheme = schemeTableau10.concat(schemeSet3);
       const colorScale = scaleOrdinal().domain(tree.annotationTypes.location.values).range(scheme);
+      const timeScale = scaleTime().domain(tree.annotationTypes.date.extent).range([0,(width-margins.left-margins.right)]);
+        console.log(timeScale.domain())
       return (
           <svg width={width} height={height}>
               <FigTree width={width} height={height} margins={margins} tree={tree}>
                   <Nodes.Circle filter={(v=>v.node.children===null)} attrs={{r:4,fill:v=>colorScale(v.node.annotations.location)}} hoveredAttrs={{r:9}}/>
-                  <Branches/>
+                  <Branches attrs={{stroke:e=>e.v1.node.annotations.location? colorScale(e.v1.node.annotations.location):"grey"}}/>
+                  <Axis direction={"horizontal"} scale={timeScale} gap={10}
+                        ticks={{number: 5, format: timeFormat("%y-%m-%d"), padding: 20, style: {}, length: 6}}>
+                      <AxisBars lift={5}/>
+                  </Axis>
               </FigTree>
           </svg>
       )
