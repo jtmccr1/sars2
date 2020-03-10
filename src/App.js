@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import {parseNexus,FigTree,Nodes,collapseUnsupportedNodes,
-    orderByNodeDensity,Branches,annotateNode,Axis,
+    orderByNodeDensity,Branches,annotateNode,Axis,Legend,
 AxisBars} from "figtreejs-react"
 import{tsv} from "d3-fetch";
 import {schemeTableau10,schemeSet3} from "d3-scale-chromatic";
@@ -37,14 +37,15 @@ function App() {
       return (
           <svg width={width} height={height}>
               <FigTree width={width} height={height} margins={margins} tree={tree}>
+                  <Nodes.Coalescent filter={(v=>v.node.children && v.node.children.length>2)} attrs={{fill:v=>(v.node.annotations.location?colorScale(v.node.annotations.location):"grey")}}/>
                   <Nodes.Circle filter={(v=>v.node.children===null)} attrs={{r:4,fill:v=>colorScale(v.node.annotations.location)}} hoveredAttrs={{r:9}}/>
                   <Branches.Coalescent filter={(e=>e.v0.node.children.length>2)} attrs={{strokeWidth:2, stroke:e=>e.v1.node.annotations.location? colorScale(e.v1.node.annotations.location):"grey"}}/>
-                  <Nodes.Coalescent filter={(v=>v.node.children && v.node.children.length>2)} attrs={{fill:v=>(v.node.annotations.location?colorScale(v.node.annotations.location):"grey")}}/>
                   <Branches.Rectangular filter={(e=>e.v0.node.children.length<=2)} attrs={{strokeWidth:2, stroke:e=>e.v1.node.annotations.location? colorScale(e.v1.node.annotations.location):"grey"}}/>
                   <Axis direction={"horizontal"} scale={timeScale} gap={10}
                         ticks={{number: 5, format: timeFormat("%y-%m-%d"), padding: 20, style: {}, length: 6}}>
                       <AxisBars lift={5}/>
                   </Axis>
+                  <Legend.Discrete height={300} columns={1} width={100} pos={{x:900,y:50}} scale={colorScale}/>
               </FigTree>
           </svg>
       )
