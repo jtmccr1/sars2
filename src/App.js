@@ -1,13 +1,14 @@
 import React, {useEffect, useState} from 'react';
 import {parseNexus,FigTree,Nodes,collapseUnsupportedNodes,
-    orderByNodeDensity,Branches,annotateNode,Axis,Legend,NodeBackgrounds,Map,Features,
+    orderByNodeDensity,Branches,annotateNode,Axis,Legend,NodeBackgrounds,Map,Features,GreatCircleArc,PointsOnPath,
 AxisBars} from "figtreejs-react"
 import{tsv} from "d3-fetch";
 import {schemeTableau10,schemeSet3} from "d3-scale-chromatic";
 import {scaleOrdinal, scaleTime} from "d3-scale";
 import {timeFormat} from "d3-time-format";
-import {geoEqualEarth} from "d3-geo";
+import {geoEqualEarth, geoPath} from "d3-geo";
 import {feature} from "topojson-client";
+import {geoGingery, geoPeirceQuincuncial} from "d3-geo-projection";
 
 const processTree=tree=> {
     return collapseUnsupportedNodes(orderByNodeDensity(tree, false), node => node.annotations.posterior < 0.5);
@@ -52,8 +53,9 @@ function App() {
       const colorScale = scaleOrdinal().domain(tree.annotationTypes.location.values).range(scheme);
       const timeScale = scaleTime().domain(tree.annotationTypes.date.extent).range([0,(width-margins.left-margins.right)]);
 
-      const projection = geoEqualEarth()
-          .translate([ width / 2, height / 2 ]);
+      const projection = geoPeirceQuincuncial()
+          .translate([ width / 2, height / 2 ])
+          .scale(150)
 
       return (
           <>
@@ -78,10 +80,12 @@ function App() {
               </svg>
 
 
-
               <svg width={width} height={height}>
                   <Map projection = {projection}>
-                    <Features geographies={geographies} attrs={{stroke:"black"}}/>
+                    <Features geographies={geographies} attrs={{stroke:"black",fill:"none"}}/>
+
+                    <GreatCircleArc start={{long:112,lat:33}} stop={{long:-120,lat:47}} attrs={{stroke:"red", strokeWidth:4, fill:"none"}} />
+                    <PointsOnPath start={{long:112,lat:33}} stop={{long:-120,lat:47}} attrs={{stroke:"red", strokeWidth:4, fill:"none"}}/>
                   </Map>
               </svg>
           </>
