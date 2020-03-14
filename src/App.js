@@ -59,12 +59,10 @@ function App() {
           .translate([ width / 2, height / 2 ])
           .scale(150);
 
-
-
       return (
           <>
               <svg width={width} height={height}>
-                  <FigTree width={width} height={height} margins={margins} tree={tree}>
+                  <FigTree width={width-margins.left-margins.right} height={height-margins.top-margins.bottom} data={tree} pos={{x:margins.left,y:margins.top}}>
                       <Nodes.Coalescent filter={(v=>v.node.children && v.node.children.length>2)} attrs={{fill:v=>(v.node.annotations.location?colorScale(v.node.annotations.location):"grey")}}/>
                       <NodeBackgrounds.Circle filter={(v=>v.node.children===null)} attrs={{r:5,fill:"black"}}/>
 
@@ -82,7 +80,6 @@ function App() {
                       <Legend.Discrete height={300} columns={1} width={100} pos={{x:900,y:50}} scale={colorScale}/>
                   </FigTree>
               </svg>
-
 
               <svg width={width} height={height} onClick={()=>setOffset((!offset))}>
                   <Map projection = {projection}>
