@@ -57,13 +57,13 @@ function App() {
 
       const projection = geoPeirceQuincuncial()
           .translate([ width / 2, height / 2 ])
-          .scale(150)
+          .scale(150);
 
 
 
       return (
           <>
-              <svg width={width} height={height} onClick={()=>setOffset(!offset)}>
+              <svg width={width} height={height}>
                   <FigTree width={width} height={height} margins={margins} tree={tree}>
                       <Nodes.Coalescent filter={(v=>v.node.children && v.node.children.length>2)} attrs={{fill:v=>(v.node.annotations.location?colorScale(v.node.annotations.location):"grey")}}/>
                       <NodeBackgrounds.Circle filter={(v=>v.node.children===null)} attrs={{r:5,fill:"black"}}/>
@@ -84,11 +84,11 @@ function App() {
               </svg>
 
 
-              <svg width={width} height={height}>
+              <svg width={width} height={height} onClick={()=>setOffset((!offset))}>
                   <Map projection = {projection}>
                     <Features geographies={geographies} attrs={{stroke:"black",fill:"none"}}/>
                     {/*<GreatCircleArc start={{long:112,lat:33}} stop={{long:-120,lat:47}} attrs={{stroke:"red", strokeWidth:4, fill:"none"}} />*/}
-                    <GreatCircleArcMissal start={{long:112,lat:33}} stop={{long:-120,lat:47}} attrs={{stroke:"red", strokeWidth:4, fill:"none"}} relativeLength={0.5} maxWidth={5} progress={offset} />
+                    <GreatCircleArcMissal  start={{long:112,lat:33}} stop={{long:-120,lat:47}} attrs={{stroke:"red", strokeWidth:1, fill:"none"}} relativeLength={0.5} maxWidth={5} progress={offset} />
                   </Map>
               </svg>
           </>
@@ -96,8 +96,6 @@ function App() {
   }else{
       return <p>Loading data</p>
   }
-
-
 
 }
 
