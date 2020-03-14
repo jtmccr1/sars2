@@ -83,8 +83,7 @@ function App() {
               <svg width={width} height={height}>
                   <Map projection = {projection}>
                     <Features geographies={geographies} attrs={{stroke:"black",fill:"none"}}/>
-
-                    <GreatCircleArc start={{long:112,lat:33}} stop={{long:-120,lat:47}} attrs={{stroke:"red", strokeWidth:4, fill:"none"}} />
+                    {/*<GreatCircleArc start={{long:112,lat:33}} stop={{long:-120,lat:47}} attrs={{stroke:"red", strokeWidth:4, fill:"none"}} />*/}
                     <PointsOnPath start={{long:112,lat:33}} stop={{long:-120,lat:47}} attrs={{stroke:"red", strokeWidth:4, fill:"none"}}/>
                   </Map>
               </svg>
