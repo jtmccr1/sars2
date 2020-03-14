@@ -1,11 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
   <component name="ChangeListManager">
-    <list default="true" id="aa6215df-1000-427b-92b7-0170a48fd599" name="Default Changelist" comment="adds discrete legend">
+    <list default="true" id="aa6215df-1000-427b-92b7-0170a48fd599" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/App.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/App.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/yarn.lock" beforeDir="false" afterPath="$PROJECT_DIR$/yarn.lock" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -63,7 +61,9 @@
       <workItem from="1583833896947" duration="6902000" />
       <workItem from="1583857042997" duration="271000" />
       <workItem from="1583920662159" duration="7484000" />
-      <workItem from="1584012648791" duration="8456000" />
+      <workItem from="1584012648791" duration="8575000" />
+      <workItem from="1584180247112" duration="3042000" />
+      <workItem from="1584189460613" duration="1071000" />
     </task>
     <task id="LOCAL-00001" summary="first commit">
       <created>1583513160911</created>
@@ -107,7 +107,14 @@
       <option name="project" value="LOCAL" />
       <updated>1583942837997</updated>
     </task>
-    <option name="localTasksCounter" value="7" />
+    <task id="LOCAL-00007" summary="working on map">
+      <created>1584117493891</created>
+      <option name="number" value="00007" />
+      <option name="presentableId" value="LOCAL-00007" />
+      <option name="project" value="LOCAL" />
+      <updated>1584117493891</updated>
+    </task>
+    <option name="localTasksCounter" value="8" />
     <servers />
   </component>
   <component name="TypeScriptGeneratedFilesManager">
@@ -119,7 +126,8 @@
     <MESSAGE value="adds discrete legend" />
     <MESSAGE value="node backgrounds" />
     <MESSAGE value="first pass at map" />
-    <option name="LAST_COMMIT_MESSAGE" value="first pass at map" />
+    <MESSAGE value="working on map" />
+    <option name="LAST_COMMIT_MESSAGE" value="working on map" />
   </component>
   <component name="WindowStateProjectService">
     <state x="782" y="393" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1583506887187">
@@ -130,12 +138,12 @@
       <screen x="71" y="23" width="2489" height="1417" />
     </state>
     <state x="1081" y="447" key="#xdebugger.evaluate/0.-1417.2560.1417/71.23.2489.1417@71.23.2489.1417" timestamp="1583507231836" />
-    <state x="915" y="334" key="CommitChangelistDialog2" timestamp="1583942837880">
+    <state x="915" y="334" key="CommitChangelistDialog2" timestamp="1584117493727">
       <screen x="76" y="23" width="2484" height="1417" />
     </state>
     <state x="912" y="334" key="CommitChangelistDialog2/0.-1417.2560.1417/71.23.2489.1417@71.23.2489.1417" timestamp="1583513160762" />
     <state x="915" y="334" key="CommitChangelistDialog2/0.-1417.2560.1417/76.23.2484.1417@76.23.2484.1417" timestamp="1583942837880" />
-    <state x="915" y="334" key="CommitChangelistDialog2/76.23.2484.1417/0.1463.2560.1417@76.23.2484.1417" timestamp="1583929234893" />
+    <state x="915" y="334" key="CommitChangelistDialog2/76.23.2484.1417/0.1463.2560.1417@76.23.2484.1417" timestamp="1584117493727" />
     <state x="917" y="334" key="CommitChangelistDialog2/79.23.2481.1417/0.1463.2560.1417@79.23.2481.1417" timestamp="1583857268383" />
     <state width="2463" height="501" key="GridCell.Tab.0.bottom" timestamp="1583513243625">
       <screen x="71" y="23" width="2489" height="1417" />
@@ -193,15 +201,16 @@
       <screen x="79" y="23" width="2481" height="1417" />
     </state>
     <state x="1033" y="454" key="MultipleFileMergeDialog/79.23.2481.1417/0.1463.2560.1417@79.23.2481.1417" timestamp="1583857227754" />
-    <state x="920" y="471" key="Vcs.Push.Dialog.v2" timestamp="1583942878524">
+    <state x="920" y="471" key="Vcs.Push.Dialog.v2" timestamp="1584117497318">
       <screen x="76" y="23" width="2484" height="1417" />
     </state>
     <state x="920" y="471" key="Vcs.Push.Dialog.v2/0.-1417.2560.1417/76.23.2484.1417@76.23.2484.1417" timestamp="1583942878524" />
-    <state x="920" y="471" key="Vcs.Push.Dialog.v2/76.23.2484.1417/0.1463.2560.1417@76.23.2484.1417" timestamp="1583772982565" />
+    <state x="920" y="471" key="Vcs.Push.Dialog.v2/76.23.2484.1417/0.1463.2560.1417@76.23.2484.1417" timestamp="1584117497318" />
     <state x="922" y="471" key="Vcs.Push.Dialog.v2/79.23.2481.1417/0.1463.2560.1417@79.23.2481.1417" timestamp="1583857271689" />
-    <state x="1109" y="655" key="com.intellij.openapi.vcs.update.UpdateOrStatusOptionsDialogupdate-v2" timestamp="1583857217893">
-      <screen x="79" y="23" width="2481" height="1417" />
+    <state x="1107" y="655" key="com.intellij.openapi.vcs.update.UpdateOrStatusOptionsDialogupdate-v2" timestamp="1584180252781">
+      <screen x="76" y="23" width="2484" height="1417" />
     </state>
+    <state x="1107" y="655" key="com.intellij.openapi.vcs.update.UpdateOrStatusOptionsDialogupdate-v2/0.-1417.2560.1417/76.23.2484.1417@76.23.2484.1417" timestamp="1584180252781" />
     <state x="1109" y="655" key="com.intellij.openapi.vcs.update.UpdateOrStatusOptionsDialogupdate-v2/79.23.2481.1417/0.1463.2560.1417@79.23.2481.1417" timestamp="1583857217893" />
   </component>
 </project>

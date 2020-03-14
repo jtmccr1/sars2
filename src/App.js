@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from 'react';
 import {parseNexus,FigTree,Nodes,collapseUnsupportedNodes,
-    orderByNodeDensity,Branches,annotateNode,Axis,Legend,NodeBackgrounds,Map,Features,GreatCircleArc,PointsOnPath,
+    orderByNodeDensity,Branches,annotateNode,Axis,Legend,NodeBackgrounds,Map,Features,GreatCircleArcMissal,
 AxisBars} from "figtreejs-react"
 import{tsv} from "d3-fetch";
 import {schemeTableau10,schemeSet3} from "d3-scale-chromatic";
@@ -16,6 +16,8 @@ const processTree=tree=> {
 function App() {
   const [tree,setTree]=useState(null);
   const [geographies,setGeographies] = useState(null);
+  const [offset,setOffset] = useState(0);
+
   useEffect(()=>{
     fetch(process.env.PUBLIC_URL+"/data/exp.MCC.txt")
         .then(res=> res.text())
@@ -57,9 +59,11 @@ function App() {
           .translate([ width / 2, height / 2 ])
           .scale(150)
 
+
+
       return (
           <>
-              <svg width={width} height={height}>
+              <svg width={width} height={height} onClick={()=>setOffset(!offset)}>
                   <FigTree width={width} height={height} margins={margins} tree={tree}>
                       <Nodes.Coalescent filter={(v=>v.node.children && v.node.children.length>2)} attrs={{fill:v=>(v.node.annotations.location?colorScale(v.node.annotations.location):"grey")}}/>
                       <NodeBackgrounds.Circle filter={(v=>v.node.children===null)} attrs={{r:5,fill:"black"}}/>
@@ -84,7 +88,7 @@ function App() {
                   <Map projection = {projection}>
                     <Features geographies={geographies} attrs={{stroke:"black",fill:"none"}}/>
                     {/*<GreatCircleArc start={{long:112,lat:33}} stop={{long:-120,lat:47}} attrs={{stroke:"red", strokeWidth:4, fill:"none"}} />*/}
-                    <PointsOnPath start={{long:112,lat:33}} stop={{long:-120,lat:47}} attrs={{stroke:"red", strokeWidth:4, fill:"none"}}/>
+                    <GreatCircleArcMissal start={{long:112,lat:33}} stop={{long:-120,lat:47}} attrs={{stroke:"red", strokeWidth:4, fill:"none"}} relativeLength={0.5} maxWidth={5} progress={offset} />
                   </Map>
               </svg>
           </>
