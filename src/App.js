@@ -88,7 +88,7 @@ function App() {
                   <Map projection = {projection}>
                     <Features geographies={geographies} attrs={{stroke:"black",fill:"none"}}/>
                     {/*<GreatCircleArc start={{long:112,lat:33}} stop={{long:-120,lat:47}} attrs={{stroke:"red", strokeWidth:4, fill:"none"}} />*/}
-                    <GreatCircleArcMissal  start={{long:112,lat:33}} stop={{long:-120,lat:47}} attrs={{stroke:"red", strokeWidth:1, fill:"none"}} relativeLength={0.5} maxWidth={5} progress={offset} />
+                    <GreatCircleArcMissal  pathProps={{start:{long:112,lat:33}, stop:{long:-120,lat:47}, attrs:{stroke:"none", strokeWidth:0, fill:"none"}}} missileProps={{relativeLength:0.5,maxWidth:5, progress:offset}} />
                   </Map>
               </svg>
           </>
