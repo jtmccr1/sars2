@@ -1,5 +1,7 @@
+/** @jsx jsx */
+import { css, jsx } from '@emotion/core'
 import React, {useEffect, useState} from 'react';
-import {parseNexus,FigTree,Nodes,collapseUnsupportedNodes,
+import {parseNexus,FigTree,Nodes,collapseUnsupportedNodes,InteractionContainer,
     orderByNodeDensity,Branches,annotateNode,Axis,Legend,NodeBackgrounds,Map,Features,GreatCircleArcMissal,getDateRange,getTips,Timeline,
 AxisBars} from "figtreejs-react"
 import {csv, tsv} from "d3-fetch";
@@ -29,7 +31,7 @@ function App() {
                     const externalNodes =getTips(tree).map(t=>t.name);
                     for(const tip of data){
                         if(externalNodes.includes(tip.label)){
-                            tree=annotateNode(tree,tip.label,{location:tip.country})
+                            tree=annotateNode(tree,tip.label,{country:tip.country})
                         }
                     }
                     setTree(tree);
@@ -46,49 +48,52 @@ function App() {
               return
           }
           response.json().then(worlddata => {
+              console.log(worlddata.objects)
+              console.log(feature(worlddata, worlddata.objects.countries).features);
               setGeographies(feature(worlddata, worlddata.objects.countries).features)
           })
       })
   },[]);
 
 
-  const width=1000,height=800,margins={top:10,right:150,bottom:75,left:20};
+  const width=1000,height=800,margins={top:10,right:210,bottom:75,left:20};
 
   if(tree!==null&&geographies!==null){
       const scheme = schemeTableau10.concat(schemeSet3);
-      const colorScale = scaleOrdinal().domain(tree.annotationTypes.location.values).range(scheme);
+      const colorScale = scaleOrdinal().domain(tree.annotationTypes.country.values).range(scheme);
       const timeScale = scaleTime().domain(getDateRange(tree)).range([0,(width-margins.left-margins.right)]);
       const projection = geoPeirceQuincuncial()
           .translate([ width / 2, height / 2 ])
           .scale(150);
 
       return (
-                <>
-                    <Timeline width={width} height={height} margins={margins}>
-                        <FigTree width={width-margins.left-margins.right} height={height-margins.top-margins.bottom} data={tree} pos={{x:margins.left,y:margins.top}}>
-                          <Nodes.Coalescent filter={(v=>v.node.children && v.node.children.length>2)} attrs={{fill:v=>(v.node.annotations.location?colorScale(v.node.annotations.location):"grey")}}/>
-                          <NodeBackgrounds.Circle filter={(v=>v.node.children===null)} attrs={{r:3,fill:"black"}}/>
-                          <Nodes.Circle filter={(v=>v.node.children===null)} attrs={{r:2,fill:v=>colorScale(v.node.annotations.location),strokeWidth:0,stroke:"black"}} hoveredAttrs={{r:9,strokeWidth:1}}/>
+          <InteractionContainer>
 
-                          <Branches.Coalescent filter={(e=>e.v0.node.children.length>2)} attrs={{strokeWidth:2, stroke:e=>e.v1.node.annotations.location? colorScale(e.v1.node.annotations.location):"grey"}}/>
-                          <Branches.Rectangular filter={(e=>e.v0.node.children.length<=2)} attrs={{strokeWidth:2, stroke:e=>e.v1.node.annotations.location? colorScale(e.v1.node.annotations.location):"grey"}}/>
+              <Timeline width={width} height={height} margins={margins}>
+                            <FigTree width={width-margins.left-margins.right} height={height-margins.top-margins.bottom} data={tree} pos={{x:margins.left,y:margins.top}}>
+                              <Nodes.Coalescent filter={(v=>v.node.children && v.node.children.length>2)} attrs={{fill:v=>(v.node.annotations.country?colorScale(v.node.annotations.country):"grey")}}/>
+                              <NodeBackgrounds.Circle filter={(v=>v.node.children===null)} attrs={{r:3,fill:"black"}}/>
+                              <Nodes.Circle filter={(v=>v.node.children===null)} attrs={{r:2,fill:v=>colorScale(v.node.annotations.country),strokeWidth:0,stroke:"black"}} hoveredAttrs={{r:9,strokeWidth:1}}/>
 
-                          <Axis direction={"horizontal"} scale={timeScale} gap={10}
-                                ticks={{number: 10, format: timeFormat("%m-%d"), padding: 20, style: {}, length: 6}}>
-                              <AxisBars lift={5}/>
-                          </Axis>
-                          <Legend.Discrete height={300} columns={1} width={100} pos={{x:860,y:50}} scale={colorScale} annotation={"location"}/>
-                      </FigTree>
-                    </Timeline>
+                              <Branches.Coalescent filter={(e=>e.v0.node.children.length>2)} attrs={{strokeWidth:2, stroke:e=>e.v1.node.annotations.country? colorScale(e.v1.node.annotations.country):"grey"}}/>
+                              <Branches.Rectangular filter={(e=>e.v0.node.children.length<=2)} attrs={{strokeWidth:2, stroke:e=>e.v1.node.annotations.country? colorScale(e.v1.node.annotations.country):"grey"}}/>
 
-                    <svg width={width} height={height} onClick={()=>setOffset((!offset))}>
-                  <Map projection = {projection}>
-                    <Features geographies={geographies} attrs={{stroke:"black",fill:"none"}}/>
-                    {/*<GreatCircleArc start={{long:112,lat:33}} stop={{long:-120,lat:47}} attrs={{stroke:"red", strokeWidth:4, fill:"none"}} />*/}
-                    <GreatCircleArcMissal  pathProps={{start:{long:112,lat:33}, stop:{long:-120,lat:47}, attrs:{stroke:"none", strokeWidth:0, fill:"none"}}} missileProps={{relativeLength:0.5,maxWidth:5, progress:offset}} />
-                  </Map>
-              </svg>
-          </>
+                              <Axis direction={"horizontal"} scale={timeScale} gap={10}
+                                    ticks={{number: 10, format: timeFormat("%m-%d"), padding: 20, style: {}, length: 6}}>
+                                  <AxisBars lift={5}/>
+                              </Axis>
+                              <Legend.Discrete height={500} columns={1} width={200} pos={{x:800,y:50}} scale={colorScale} annotation={"country"}/>
+                          </FigTree>
+                        </Timeline>
+
+                        <svg width={width} height={height} onClick={()=>setOffset((!offset))} css={css`background:lightblue`}>
+                          <Map projection = {projection}>
+                            <Features geographies={geographies} attrs={{stroke:"black",fill:(f)=>colorScale.domain().includes(f.properties.name)?colorScale(f.properties.name):'#f5f5dc'}}/>
+                            {/*<GreatCircleArc start={{long:112,lat:33}} stop={{long:-120,lat:47}} attrs={{stroke:"red", strokeWidth:4, fill:"none"}} />*/}
+                            <GreatCircleArcMissal  pathProps={{start:{long:112,lat:33}, stop:{long:-120,lat:47}, attrs:{stroke:"none", strokeWidth:0, fill:"none"}}} missileProps={{relativeLength:0.5,maxWidth:5, progress:offset}} />
+                          </Map>
+                         </svg>
+          </InteractionContainer>
       )
   }else{
       return <p>Loading data</p>
