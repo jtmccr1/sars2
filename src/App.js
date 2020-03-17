@@ -77,7 +77,7 @@ function App() {
                                 ticks={{number: 10, format: timeFormat("%m-%d"), padding: 20, style: {}, length: 6}}>
                               <AxisBars lift={5}/>
                           </Axis>
-                          <Legend.Discrete height={300} columns={1} width={100} pos={{x:860,y:50}} scale={colorScale}/>
+                          <Legend.Discrete height={300} columns={1} width={100} pos={{x:860,y:50}} scale={colorScale} annotation={"location"}/>
                       </FigTree>
                     </Timeline>
 
