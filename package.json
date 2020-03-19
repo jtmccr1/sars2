@@ -17,6 +17,7 @@
     "react": "^16.13.0",
     "react-dom": "^16.13.0",
     "react-scripts": "3.4.0",
+    "react-tooltip": "^4.1.2",
     "topojson-client": "^3.1.0"
   },
   "scripts": {
