@@ -12,6 +12,7 @@ import {geoPeirceQuincuncial} from "d3-geo-projection";
 import ReactTooltip from "react-tooltip";
 import {format} from "d3-format";
 import {line} from "d3-shape";
+import {extent} from "d3-array";
 
 
 const processTree=tree=> {
@@ -100,7 +101,7 @@ function App() {
       return (
           <InteractionContainer>
               <Timeline width={width} height={height} margins={margins}>
-                            <FigTree width={figtreeSize.width} height={figtreeSize.height} data={tree} pos={{x:margins.left,y:margins.top}}>
+                            <FigTree width={figtreeSize.width} height={figtreeSize.height} data={tree} pos={{x:margins.left,y:margins.top}} getDateExtent={getDateRange} >
                               <Nodes.Coalescent filter={(v=>v.node.children && v.node.children.length>2)} attrs={{fill:v=>(v.node.annotations.country?colorScale(v.node.annotations.country):"grey")}}/>
                               <NodeBackgrounds.Circle filter={(v=>v.node.children===null)} attrs={{r:3,fill:"black"}}/>
                               <Nodes.Circle tooltip={{'data-tip':v=>v.id}} filter={(v=>v.node.children===null)} attrs={{r:2,fill:v=>colorScale(v.node.annotations.country),strokeWidth:0,stroke:"black"}} hoveredAttrs={{r:9,strokeWidth:1}}>
@@ -117,7 +118,10 @@ function App() {
 
 
 
-                  <PlotLayer data={filteredData}  width={casesSize.width} scaleTypes={{x:scaleTime,y:scaleLinear}} height={150}  dataAccessor={{x:d=>d.cases.map(x=>x.date),y:d=>d.cases.map(y=>y.cumulative)}} pos={{x:margins.left,y:figtreeSize.height+100}}>
+                  <PlotLayer data={filteredData}  width={casesSize.width} scaleTypes={{x:scaleTime,y:scaleLinear}} height={150}
+                             dataAccessor={{x:d=>d.cases.map(x=>x.date),y:d=>d.cases.map(y=>y.cumulative)}}
+                             pos={{x:margins.left,y:figtreeSize.height+100}}
+                  getDateExtent={plotDateExtent}>
                       <Element.path tooltip={{'data-tip':v=>v.id}} hoverKey={"country"} attrs={{d:path,strokeWidth:2,fill:"none",stroke:d=>colorScale(d.annotations.country)}} hoveredAttrs={{strokeWidth:6}}/>
                       <Axis direction={"horizontal"}  gap={10} ticks={{number: 10, format: timeFormat("%m-%d"), padding: 20, style: {}, length: 6}}/>
                       <Axis direction={"vertical"}  gap={10} ticks={{number: 10, format: format(".2s"), padding: -20, style: {}, length: 6}}/>
@@ -152,3 +156,10 @@ function App() {
 
 export default App;
 
+function plotDateExtent(data){
+
+    return extent(data.reduce((acc,d)=> acc.concat(extent(getDates(d))),[]))
+}
+function getDates(d){
+    return d.cases.map(x=>x.date)
+}
