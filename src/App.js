@@ -1,3 +1,5 @@
+/** @jsx jsx */
+import { css, jsx } from '@emotion/core'
 import React, {useEffect, useState} from 'react';
 import {parseNexus,FigTree,Nodes,collapseUnsupportedNodes,InteractionContainer,
     orderByNodeDensity,Branches,annotateNode,Axis,Legend,NodeBackgrounds,
@@ -5,7 +7,8 @@ import {parseNexus,FigTree,Nodes,collapseUnsupportedNodes,InteractionContainer,
 AxisBars} from "figtreejs-react"
 import {csv} from "d3-fetch";
 import {schemeTableau10,schemeSet3} from "d3-scale-chromatic";
-import {scaleLinear, scaleLog, scaleOrdinal, scaleTime} from "d3-scale";
+import {scaleOrdinal, scaleTime} from "d3-scale";
+import {max,min} from "d3-array";
 import {timeFormat} from "d3-time-format";
 import {feature} from "topojson-client";
 import {geoPeirceQuincuncial} from "d3-geo-projection";
@@ -20,10 +23,8 @@ const processTree=tree=> {
 };
 function App() {
   const [tree,setTree]=useState(null);
+  const [originalTree,setOriginalTree] = useState(null);
   const [geographies,setGeographies] = useState(null);
-  const [caseData, setCaseData] = useState(null);
-  const [offset,setOffset] = useState(0);
-
   useEffect(()=>{
     // fetch(process.env.PUBLIC_URL+"/data/2020-03-10/tree.MCC")
     fetch(process.env.PUBLIC_URL+"data/2020-03-10/2020-03-19_nCoV.mcc.tre")
@@ -47,6 +48,7 @@ function App() {
                 tree=annotateNode(tree,tip.id,{country:country})
             }
             setTree(tree);
+            setOriginalTree(tree);
         })
   },[]);
 
@@ -66,38 +68,49 @@ function App() {
   },[]);
 
 
+  useEffect(()=>{
+      ReactTooltip.rebuild();
+  },[tree])
   const width=1200,height=800,margins={top:10,right:210,bottom:75,left:40};
+  const mapWidth=400,mapHeight=400;
 
   if(tree!==null&&geographies!==null){
       const scheme = schemeTableau10.concat(schemeSet3);
       const colorScale = scaleOrdinal().domain(tree.annotationTypes.country.values).range(scheme);
       const timeScale = scaleTime().domain(getDateRange(tree)).range([0,(width-margins.left-margins.right)]);
       const projection = geoPeirceQuincuncial()
-          .translate([ 350, 330 ])
-          .scale(145);
-      const proportionFigtree=0.95;
-      const figtreeSize = {width:width-margins.left-margins.right,height:(height-margins.top-margins.bottom)*proportionFigtree};
-
+          .translate([ mapWidth/2, mapHeight/2 ])
+          .scale(85);
+      const figtreeSize = {width:width-margins.left-margins.right,height:(height-margins.top-margins.bottom)};
+      const nodeWidth = min([10,max([2,figtreeSize.height/2/getTips(tree).length])]);
       return (
+          <div css={css`display: flex; flex-direction: row; padding-left: 1%; padding-top: 5%; flex-wrap: nowrap;justify-content: flex-start;   align-items: center;}`}>
+
           <InteractionContainer>
-              <Timeline width={width} height={height} margins={margins}>
-                            <FigTree width={figtreeSize.width} height={figtreeSize.height} data={tree} pos={{x:margins.left,y:margins.top}} getDateExtent={getDateRange} >
-                              <Nodes.Coalescent filter={(v=>v.node.children && v.node.children.length>2)} attrs={{fill:v=>(v.node.annotations.country?colorScale(v.node.annotations.country):"grey")}}/>
-                              <NodeBackgrounds.Circle filter={(v=>v.node.children===null)} attrs={{r:3,fill:"black"}}/>
-                              <Nodes.Circle tooltip={{'data-tip':v=>v.id}} filter={(v=>v.node.children===null)} attrs={{r:2,fill:v=>colorScale(v.node.annotations.country),strokeWidth:0,stroke:"black"}} hoveredAttrs={{r:9,strokeWidth:1}}/>
+              <div css={css`flex-basis:60%;`}>
+              <svg viewBox={`0,0,${width},${height}`}>
+                  <rect width={width} height={height} fill={"none"} pointerEvents={"all"} onClick={()=>{setTree(originalTree)}}/>
+
+                  <FigTree width={figtreeSize.width} height={figtreeSize.height} data={tree} pos={{x:margins.left,y:margins.top}} getDateExtent={getDateRange} >
+                                <Nodes.Coalescent filter={(v=>v.node.children && v.node.children.length>2)}
+                                                attrs={{fill:v=>(v.node.annotations.country?colorScale(v.node.annotations.country):"grey")}}
+                                                interactions={{"onClick":(v)=>{console.log(v);setTree(v.node)}}}/>
+                              <NodeBackgrounds.Circle filter={(v=>v.node.children===null)} attrs={{r:nodeWidth+1,fill:"black"}}/>
+                              <Nodes.Circle tooltip={{'data-tip':v=>v.id}} filter={(v=>v.node.children===null)} attrs={{r:nodeWidth,fill:v=>colorScale(v.node.annotations.country),strokeWidth:0,stroke:"black"}} hoveredAttrs={{r:nodeWidth+4,strokeWidth:1}}/>
                               {/*<Label css={`opacity:0; pointer-events:all;&:hover {opacity:1};`}/>*/}
                               <Branches.Coalescent filter={(e=>e.v0.node.children.length>2)} attrs={{strokeWidth:2, stroke:e=>e.v1.node.annotations.country? colorScale(e.v1.node.annotations.country):"grey"}}/>
                               <Branches.Rectangular filter={(e=>e.v0.node.children.length<=2)} attrs={{strokeWidth:2, stroke:e=>e.v1.node.annotations.country? colorScale(e.v1.node.annotations.country):"grey"}}/>
-                              <Axis direction={"horizontal"} scale={timeScale} gap={10} ticks={{number: 10, format: timeFormat("%m-%d"), padding: 20, style: {}, length: 6}}>
+                                <Axis direction={"horizontal"} scale={timeScale} gap={10} ticks={{number: 10, format: timeFormat("%m-%d"), padding: 20, style: {}, length: 6}}>
                                   <AxisBars lift={5}/>
                               </Axis>
                               <Legend.Discrete height={700} columns={1} width={200} pos={{x:960,y:50}} scale={colorScale} annotation={"country"}/>
                           </FigTree>
-              </Timeline>
 
-                        <ReactTooltip type='light' effect={"float"}   delayHide={200}  place={'right'} delayUpdate={100} pos/>
+              </svg>
+              </div>
+                <div css={css`flex-basis:30%`}>
 
-                        <svg width={700} height={700}>
+                    <svg viewBox={`0,0,${mapWidth},${mapHeight}`}>
                           <Map projection = {projection}>
                             <Features geographies={geographies}
                                       attrs={{stroke:"black",strokeWidth:1,opacity:0.9,
@@ -110,7 +123,12 @@ function App() {
                             {/*<GreatCircleArcMissal  pathProps={{start:{long:112,lat:33}, stop:{long:-120,lat:47}, attrs:{stroke:"none", strokeWidth:0, fill:"none"}}} missileProps={{relativeLength:0.5,maxWidth:5, progress:offset}} />*/}
                           </Map>
                          </svg>
+                </div>
           </InteractionContainer>
+              <ReactTooltip type='light' effect={"solid"}   delayHide={200}  place={'right'} delayUpdate={50}/>
+
+          </div>
+
       )
   }else{
       return <p>Loading data</p>
@@ -127,3 +145,4 @@ function plotDateExtent(data){
 function getDates(d){
     return d.cases.map(x=>x.date)
 }
+
