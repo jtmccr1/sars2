@@ -1,219 +1,48 @@
 /** @jsx jsx */
 import { css, jsx } from '@emotion/core'
-import React, {useEffect, useState,useMemo} from 'react';
-import {parseNexus,FigTree,Nodes,collapseUnsupportedNodes,InteractionContainer,
-    orderByNodeDensity,Branches,annotateNode,Axis,Legend,NodeBackgrounds,
-    Map,Features,GreatCircleArcMissal,getDateRange,getTips,getNode,Timeline,Label,PlotLayer,Element,
-AxisBars} from "figtreejs-react"
-import {csv} from "d3-fetch";
+import React, { useState} from 'react';
+
 import {schemeTableau10,schemeSet3,schemePaired} from "d3-scale-chromatic";
-import {scaleOrdinal, scaleTime} from "d3-scale";
-import {max,min} from "d3-array";
-import {timeFormat} from "d3-time-format";
-import {feature} from "topojson-client";
-import {geoPeirceQuincuncial} from "d3-geo-projection";
-import ReactTooltip from "react-tooltip";
-import {format} from "d3-format";
-import {line} from "d3-shape";
-import {extent,group} from "d3-array";
+import {scaleOrdinal} from "d3-scale";
+import Container from "./components/Container";
+import TreeFigure from "./components/TreeFigure";
+import MapFigure from "./components/MapFigure";
 
 
-const processTree=tree=> {
-    return collapseUnsupportedNodes(orderByNodeDensity(tree, false), node => node.annotations.posterior < 0.5);
-};
 function App() {
-  const [tree,setTree]=useState(null);
-  const [originalTree,setOriginalTree] = useState(null);
-  const [geographies,setGeographies] = useState(null);
-  const [toottipContent,setTooltTipconent] = useState("");
-  const [roottipContent,setRooltTipconent] = useState("");
-  useEffect(()=>{
-    // fetch(process.env.PUBLIC_URL+"/data/2020-03-10/tree.MCC")
-    fetch(process.env.PUBLIC_URL+"/data/2020-03-10/2020-03-19_nCoV.mcc.tre")
-        .then(res=> res.text())
-        .then(text=> {
-          let tree= processTree(parseNexus(text,{datePrefix: "|",dateFormat:"%Y-%m-%d"})[0]);
-            // csv(process.env.PUBLIC_URL+"/data/2020-03-10/metadata.csv")
-            //     .then((data)=>{
-            //         const externalNodes =getTips(tree).map(t=>t.name);
-            //         for(const tip of data){
-            //             if(externalNodes.includes(tip.label)){
-            //                 tree=annotateNode(tree,tip.label,{country:tip.country})
-            //             }
-            //         }
-            //         setTree(tree);
-            //     })
-            const externalNodes =getTips(tree);//.map(t=>t.name);
-            for(const tip of externalNodes){
-                let country = tip.name.split("|").reverse()[1];
-                country= country==="USA"?"United States of America":
-                    country==="UnitedKingdom"?"United Kingdom":
-                        country==="SouthKorea"?"South Korea":
-                            country==="HongKong"?"Hong Kong":
-                                country==="CzechRepublic"?"Czech Republic":
-                                    country==="NewZealand"?"New Zealand":country;
-                tree=annotateNode(tree,tip.id,{country:country})
-            }
-            setOriginalTree(tree);
-            setTree(tree);
-        })
-  },[]);
+
+  const [colorScaleDomain,setColorScaleDomain] = useState([]);
+  const [isTreeLoaded,setIsTreeLoaded] = useState(false);
+  const [isMapLoaded,setIsMapLoaded] = useState(false);
 
 
-  useEffect(()=>{
-      fetch(process.env.PUBLIC_URL+"/data/world-110m.json")
-          .then(response => {
-          if (response.status !== 200) {
-              return
-          }
-          response.json().then(worlddata => {
-              const countries = feature(worlddata, worlddata.objects.countries).features;
-              countries.forEach(f=>f["annotations"]={"country":f.properties.name});
-              setGeographies(countries)
-          })
-      })
-  },[]);
 
 
-  useEffect(()=>{
-      ReactTooltip.rebuild();
-  },[tree]);
+
+  const colorKey = "country";
   const width=1100,height=700,margins={top:10,right:210,bottom:75,left:40};
   const mapWidth=400,mapHeight=400;
 
-  if(tree!==null&&geographies!==null){
       const scheme = schemeTableau10.concat(schemeSet3).concat(schemePaired);
-      const colorScale = scaleOrdinal().domain(originalTree.annotationTypes.country.values).range(scheme);
-      const timeScale = scaleTime().domain(getDateRange(tree)).range([0,(width-margins.left-margins.right)]);
-      const projection = geoPeirceQuincuncial()
-          .translate([ mapWidth/2, mapHeight/2 ])
-          .scale(85);
-      const figtreeSize = {width:width-margins.left-margins.right,height:(height-margins.top-margins.bottom)};
-      const nodeWidth = min([10,max([2,figtreeSize.height/2/getTips(tree).length])]);
-      const activeLocations = [...tree.annotationTypes.country.values];
-      const activeColors = activeLocations.map(c=>colorScale(c));
-      const activeColorScale =  scaleOrdinal().domain(activeLocations).range(activeColors);
+      const colorScale = scaleOrdinal().domain(colorScaleDomain).range(scheme);
 
       return (
-          <div css={css`display: flex; flex-direction: row; padding-left: 2%; padding-right:2%; padding-top: 5%; flex-wrap: nowrap; justify-content: space-around;   align-items: center;}`}>
-
-          <InteractionContainer>
-              <div css={css`flex-basis:65%;`}>
-              <svg viewBox={`0,0,${width},${height}`}>
-                  <rect width={width} height={height} fill={"none"} pointerEvents={"all"} onClick={()=>{setTree(originalTree)}}/>
-
-                  <FigTree width={figtreeSize.width} height={figtreeSize.height} data={tree} pos={{x:margins.left,y:margins.top}} getDateExtent={getDateRange} >
-
-
-                      <Axis direction={"horizontal"} scale={timeScale} gap={10} ticks={{number: 10, format: timeFormat("%m-%d"), padding: 20, style: {}, length: 6}}>
-                          <AxisBars lift={5}/>
-                      </Axis>
-                      <Branches.Coalescent filter={(e=>e.v0.node.children.length>2)} attrs={{strokeWidth:2, stroke:e=>e.v1.node.annotations.country? colorScale(e.v1.node.annotations.country):"grey"}}/>
-                      <Branches.Rectangular filter={(e=>e.v0.node.children.length<=2)} attrs={{strokeWidth:2, stroke:e=>e.v1.node.annotations.country? colorScale(e.v1.node.annotations.country):"grey"}}/>
-                      <NodeBackgrounds.Circle filter={(v=>v.node.children===null)} attrs={{r:nodeWidth+1,fill:"black"}}/>
-                      <Nodes.Coalescent filter={(v=>v.node.children && v.node.children.length>2)}
-                                        attrs={{fill:v=>(v.node.annotations.country?colorScale(v.node.annotations.country):"grey")}}
-                                        interactions={{"onClick":(v)=>{console.log(v);setTree(v.node)}}}/>
-                      <Nodes.Rectangle
-                          filter={(v=>v.node.children && v.node.children.length>2)}
-                          attrs={{cursor:"pointer",fill:"none",pointerEvents:"all",width:50,height:20,transform:`translate(0,-${20/2})`}}
-                          interactions={{"onMouseEnter":v=>v.id===tree.id?setRooltTipconent(v.id):setTooltTipconent(v.id),
-                              "onMouseLeave":v=>{ ReactTooltip.hide(); v.id===tree.id?setRooltTipconent(""):setTooltTipconent("")},
-                                  "onClick":(v)=>{setTree(v.node)}}}
-                      hoverKey={null}
-                      tooltip={{"data-tip":'', "data-for":v=>v.id===tree.id?"root-tip":"clade-tip"}}/>
-                      <Nodes.Circle tooltip={{'data-tip':v=>v.id, "data-for":"tip-label"}}
-                                    filter={(v=>v.node.children===null)}
-                                    attrs={{r:nodeWidth,fill:v=>colorScale(v.node.annotations.country),strokeWidth:0,stroke:"black"}}
-                                    hoveredAttrs={{r:nodeWidth+4,strokeWidth:1}}/>
-
-                      <Legend.Discrete height={700} columns={1} width={200} pos={{x:870,y:0}} swatchSize={8}
-                                       scale={activeColorScale} annotation={"country"}/>
-
-                  </FigTree>
-
-              </svg>
-              </div>
-                <div css={css`flex-basis:35%`}>
-
-                    <svg viewBox={`0,0,${mapWidth},${mapHeight}`}>
-                          <Map projection = {projection}>
-                            <Features geographies={geographies}
-                                      attrs={{stroke:"black",strokeWidth:1,opacity:0.9,
-                                          fill:(f)=>colorScale.domain().includes(f.properties.name)?colorScale(f.properties.name):'#f5f5dc'}}
-                                      hoveredAttrs={{strokeWidth:2,opacity:1}}
-                                      hoverKey={"country"}
-                              tooltip={{'data-tip':v=>v.annotations.country}}
-                            />
-                            {/*<GreatCircleArc start={{long:112,lat:33}} stop={{long:-120,lat:47}} attrs={{stroke:"red", strokeWidth:4, fill:"none"}} />*/}
-                            {/*<GreatCircleArcMissal  pathProps={{start:{long:112,lat:33}, stop:{long:-120,lat:47}, attrs:{stroke:"none", strokeWidth:0, fill:"none"}}} missileProps={{relativeLength:0.5,maxWidth:5, progress:offset}} />*/}
-                          </Map>
-                         </svg>
-                </div>
-          </InteractionContainer>
-              <ReactTooltip id="tip-label" type='light' effect={"solid"}   delayHide={200}  place={'right'} delayUpdate={50}/>
-              <ReactTooltip  id="clade-tip" type='light'
-                             effect={"solid"}
-                             delayHide={200}
-                             place={'left'}
-                             delayUpdate={50}
-                             // data-html={true}>
-                  >
-                  {toottipContent===""?null:
-                  <ToolTip tree={tree} id={toottipContent}/>}
-              </ReactTooltip>
-              <ReactTooltip  id="root-tip" type='light'
-                             effect={"solid"}
-                             // delayHide={200}
-                             place={'right'}
-                             // delayUpdate={50}
-                  // data-html={true}>
-              >
-                  {roottipContent===""?null:
-                      <ToolTip tree={tree} id={roottipContent}/>}
-              </ReactTooltip>
-
-              {/*// getContent={(dataTip) => { console.log(dataTip);getCladeData(tree)(dataTip)}}/>*/}
-
-
+          <>
+          <div css={css`text-align:center;margin:auto;display:${isMapLoaded&&isTreeLoaded?"none":"inline"}`}>
+              <p>Loading data</p>
           </div>
-
+          <Container>
+              <div css={css`flex-basis:65%;`}>
+                <TreeFigure display={isMapLoaded&&isTreeLoaded} setIsTreeLoaded={setIsTreeLoaded} width={width} height={height} margins = {margins} colorScale={colorScale} setColorScaleDomain = {setColorScaleDomain} colorKey={colorKey}/>
+              </div>
+              <div css={css`flex-basis:35%`}>
+                <MapFigure display={isTreeLoaded&&isMapLoaded} setIsMapLoaded={setIsMapLoaded} width={mapWidth} height={mapHeight} scale={85} colorScale = {colorScale}/>
+              </div>
+          </Container>
+              </>
       )
-  }else{
-      return (
-      <div css={css`text-align:center;margin:auto`}>
-          <p>Loading data</p>
-      </div>
-      )
-  }
 
 }
 
 export default App;
 
-function plotDateExtent(data){
-
-    return extent(data.reduce((acc,d)=> acc.concat(extent(getDates(d))),[]))
-}
-function getDates(d){
-    return d.cases.map(x=>x.date)
-}
-function ToolTip({tree,id}) {
-    if(id===""){
-        return null;
-    };
-        const node = getNode(tree, id);
-        const tips = getTips(node);
-       const locations= [...group(tips,tip=>tip.annotations.country).entries()].sort((a,b)=>b[1].length-a[1].length)
-        return (
-            <>
-                <h2> {tips.length} Samples</h2>
-                <p> from {[...node.annotationTypes.country.values].length} locations</p>
-                <ul css={css` li {font-size:10px}`}>
-                    {locations.map(([key,tips])=><li key={key}>{key}:{tips.length}</li>)}
-                </ul>
-
-            </>
-        )
-
-}
