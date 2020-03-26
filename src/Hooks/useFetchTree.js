@@ -7,7 +7,7 @@ const processTree=tree=> {
 export default function useFetchTree(path,callback){
     useEffect(()=>{
         ///data/2020-03-10/2020-03-19_nCoV.mcc.tre
-        const countryContinentMap = new Map();
+        const countryContinentMap = {};
         fetch(process.env.PUBLIC_URL+path)
             .then(res=> res.text())
             .then(text=> {
@@ -15,9 +15,8 @@ export default function useFetchTree(path,callback){
                 const externalNodes =getTips(tree);//.map(t=>t.name);
                 for(const tip of externalNodes){
                     let country = tip.name.split("|").reverse()[1];
-                    const continent = tip.name.split("|").reverse()[2];
+                    const continent = tip.name.split("|").reverse()[2].replace(/([a-z])([A-Z])/g, "$1 $2");
 
-                    countryContinentMap.set(country,continent);
                     country= country==="USA"?"United States of America":
                         country==="UnitedKingdom"?"United Kingdom":
                             country==="SouthKorea"?"South Korea":
@@ -26,9 +25,11 @@ export default function useFetchTree(path,callback){
                                         country==="NewZealand"?"New Zealand":country;
                     tree=annotateNode(tree,tip.id,{country:country,continent:continent});
 
+                    countryContinentMap[country] = continent;
+
                 }
-            callback(tree);
-                console.log(countryContinentMap);
+                callback(tree, countryContinentMap);
+                // console.log(countryContinentMap);
                 // setOriginalTree(tree);
                 // setTree(tree);
             })

@@ -11,7 +11,7 @@ export default function NodesLayers(props){
         <>
             <NodeBackgrounds.Circle filter={(v => v.node.children === null)} attrs={{r: nodeWidth + 1, fill: "black"}}/>
             <Nodes.Coalescent filter={(v => v.node.children && v.node.children.length > 2)}
-                              attrs={{fill: v => (v.node.annotations.country ? colorScale(v.node.annotations[colorKey]) : "grey")}}
+                              attrs={{fill: v => (v.node.annotations[colorKey] ? colorScale(v.node.annotations[colorKey]) : "grey")}}
                               interactions={{
                                   "onClick": (v) => {
                                       console.log(v);
@@ -44,7 +44,7 @@ export default function NodesLayers(props){
                           filter={(v => v.node.children === null)}
                           attrs={{
                               r: nodeWidth,
-                              fill: v => colorScale(v.node.annotations.country),
+                              fill: v => colorScale(v.node.annotations[colorKey]),
                               strokeWidth: 0,
                               stroke: "black"
                           }}

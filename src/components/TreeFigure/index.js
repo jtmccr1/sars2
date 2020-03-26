@@ -9,7 +9,7 @@ import NodesLayers from "./NodesLayer";
 import ToolTips from "./Tooltips"
 export default function TreeFigure(props) {
 
-    const {width,height,display,margins,colorScale,setColorScaleDomain,colorKey,setIsTreeLoaded} = props;
+    const {width, height, display, margins, colorScale, setColorScaleDomain, colorKey, setIsTreeLoaded, setCountryContinentMap} = props;
 
     const [tree,setTree]=useState(null);
     const [originalTree,setOriginalTree] = useState(null);
@@ -17,7 +17,12 @@ export default function TreeFigure(props) {
     const [roottipContent,setRoottipContent] = useState("");
 
     useFetchTree("/data/2020-03-10/2020-03-19_nCoV.mcc.tre",
-        (tree)=>{setTree(tree);setOriginalTree(tree);setIsTreeLoaded(true)});
+        (tree, map) => {
+            setTree(tree);
+            setOriginalTree(tree);
+            setCountryContinentMap(map);
+            setIsTreeLoaded(true)
+        });
 
     useEffect(()=>{
         ReactTooltip.rebuild();

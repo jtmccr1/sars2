@@ -1,10 +1,15 @@
+/** @jsx jsx */
+import {css, jsx} from '@emotion/core'
 import React, {useEffect, useState} from "react";
 import {feature} from "topojson-client";
 import {geoPeirceQuincuncial} from "d3-geo-projection";
 import {Map,Features} from "figtreejs-react";
+import Slider from "../Slider";
+
+// import countryMap from "../../utilities/countryMap.js"
 
 export default function MapFigure(props) {
-    const {width,height,scale,colorScale,setIsMapLoaded,display} = props;
+    const {width, height, scale, colorScale, setIsMapLoaded, display, colorKey, countryContinentMap} = props;
     const [geographies,setGeographies] = useState(null);
     const projection = geoPeirceQuincuncial()
         .translate([ width/2, height/2 ])
@@ -26,15 +31,29 @@ export default function MapFigure(props) {
     }, []);
 
     if(display){
+
         return (
+
             <svg viewBox={`0,0,${width},${height}`}>
-                <Map projection = {projection}>
+                <Map projection={projection}>
                     <Features geographies={geographies}
-                              attrs={{stroke:"black",strokeWidth:1,opacity:0.9,
-                                  fill:(f)=>colorScale.domain().includes(f.properties.name)?colorScale(f.properties.name):'#f5f5dc'}}
-                              hoveredAttrs={{strokeWidth:2,opacity:1}}
+                              attrs={{
+                                  stroke: "black", strokeWidth: 1, opacity: 0.9,
+                                  fill: (f) => {
+                                      if (colorKey === "country") {
+                                          return colorScale.domain().includes(f.properties.name) ? colorScale(f.properties.name) : '#f5f5dc'
+
+                                      } else {
+                                          if (f.properties.name in countryContinentMap) {
+                                              return colorScale(countryContinentMap[f.properties.name])
+                                          }
+                                          return '#f5f5dc';
+                                      }
+                                  }
+                              }}
+                              hoveredAttrs={{strokeWidth: 2, opacity: 1}}
                               hoverKey={"country"}
-                              tooltip={{'data-tip':v=>v.annotations.country}}
+                              tooltip={{'data-tip': v => v.annotations.country}}
                     />
                 </Map>
             </svg>
@@ -42,7 +61,6 @@ export default function MapFigure(props) {
     }else{
         return null;
     }
-
 
 
 }
