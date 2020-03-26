@@ -22,7 +22,8 @@ export default function useFetchTree(path,callback){
                             country==="SouthKorea"?"South Korea":
                                 country==="HongKong"?"Hong Kong":
                                     country==="CzechRepublic"?"Czech Republic":
-                                        country==="NewZealand"?"New Zealand":country;
+                                        country === "NewZealand" ? "New Zealand" :
+                                            country === "Congo" ? "Dem. Rep. Congo" : country;
                     tree=annotateNode(tree,tip.id,{country:country,continent:continent});
 
                     countryContinentMap[country] = continent;
