@@ -25,7 +25,7 @@ function App() {
     const colorScale = scaleOrdinal().domain(colorScaleDomain).range(scheme);
 
     return (
-        <>
+        <div>
             <div css={css`text-align:center;margin:auto;display:${isMapLoaded && isTreeLoaded ? "none" : "inline"}`}>
                 <p>Loading data</p>
             </div>
@@ -48,7 +48,7 @@ function App() {
                                colorScale={colorScale} colorKey={colorKey} setColorKey={setColorKey}/>
                 </div>
             </Container>
-        </>
+        </div>
     )
 
 }

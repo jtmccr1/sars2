@@ -69,5 +69,5 @@ export default function Slider(props) {
 
 // onChange={setColorKey(getNewColorKey(colorKey))}
 function getNewColorKey(colorKey) {
-    return colorKey === "country" ? "continent" : "country";
+    return colorKey === "country" ? "Continent" : "country";
 }
