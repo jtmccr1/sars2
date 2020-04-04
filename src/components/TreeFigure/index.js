@@ -11,12 +11,12 @@ export default function TreeFigure(props) {
 
     const {width, height, display, margins, colorScale, setColorScaleDomain, colorKey, setIsTreeLoaded, setCountryContinentMap} = props;
 
+    console.log("intree")
     const [tree,setTree]=useState(null);
     const [originalTree,setOriginalTree] = useState(null);
     const [tooltipContent,setTooltipContent] = useState("");
     const [roottipContent,setRoottipContent] = useState("");
     useFetchTree("/data/2020-03-30/2020-03-30_continent_country.mcc.tre",
-//     useFetchTree("/data/2020-03-10/2020-03-19_nCoV.mcc.tre",
         (tree, map) => {
             setTree(tree);
             setOriginalTree(tree);
@@ -31,6 +31,7 @@ export default function TreeFigure(props) {
 
     if(display) {
         if(originalTree){
+
             setColorScaleDomain(originalTree.annotationTypes[colorKey].values)
         }
         const timeScale = scaleTime().domain(getDateRange(tree)).range([0,(width-margins.left-margins.right)]);

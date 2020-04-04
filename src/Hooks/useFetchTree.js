@@ -1,14 +1,15 @@
 import {useEffect} from "react";
-import {collapseUnsupportedNodes,orderByNodeDensity,
-    parseNexus,getTips,annotateNode} from "figtreejs-react";
+import {
+    collapseNodes, orderByNodeDensity,
+    parseNexus, getTips
+} from "figtreejs-react";
 const processTree=tree=> {
-    console.log(tree)
-    return collapseUnsupportedNodes(orderByNodeDensity(tree, false), node => node.annotations.posterior < 0.5);
+    return collapseNodes(orderByNodeDensity(tree, false), node => node.annotations.posterior < 0.5);
 };
 export default function useFetchTree(path,callback){
     useEffect(()=>{
-        ///data/2020-03-10/2020-03-19_nCoV.mcc.tre
         const countryContinentMap = {};
+        console.log("fetching tree")
         fetch(process.env.PUBLIC_URL+path)
             .then(res=> res.text())
             .then(text=> {
