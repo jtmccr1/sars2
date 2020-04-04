@@ -18,12 +18,15 @@ export default function NodesLayers(props){
                                         fill: "black"
                                     }}/>
             <Nodes.Coalescent filter={(v => v.node.children && v.node.children.length > 2)}
+                              sortFactor={-1}
                               attrs={{fill: v => (v.node.annotations[colorKey] ? colorScale(v.node.annotations[colorKey]) : "grey")}}
                               interactions={{
                                   "onClick": (v) => {
+                                      console.log(v)
                                       setSelectedLocation(null)
                                   }
-                              }}/>
+                              }}
+            />
             <Nodes.Rectangle
                 filter={(v => v.node.children && v.node.children.length > 2)}
                 attrs={{
