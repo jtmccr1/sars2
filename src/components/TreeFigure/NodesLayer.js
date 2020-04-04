@@ -12,11 +12,7 @@ export default function NodesLayers(props){
     const nodeWidth = min([10,max([2,height/2/getTips(tree).length])]);
     return(
         <>
-            <NodeBackgrounds.Circle filter={(v => !v.node.children)}
-                                    attrs={{
-                                        r: v => v.annotations[selectedLocationKey] === selectedLocation ? nodeWidth + 4 : nodeWidth + 1,
-                                        fill: "black"
-                                    }}/>
+
             <Nodes.Coalescent filter={(v => v.node.children && v.node.children.length > 2)}
                               sortFactor={-1}
                               attrs={{fill: v => (v.node.annotations[colorKey] ? colorScale(v.node.annotations[colorKey]) : "grey")}}
@@ -27,6 +23,7 @@ export default function NodesLayers(props){
                                   }
                               }}
             />
+
             <Nodes.Rectangle
                 filter={(v => v.node.children && v.node.children.length > 2)}
                 attrs={{
@@ -49,6 +46,11 @@ export default function NodesLayers(props){
                 }}
                 hoverKey={null}
                 tooltip={{"data-tip": '', "data-for": v => v.id === tree.id ? "root-tip" : "clade-tip"}}/>
+            <NodeBackgrounds.Circle filter={(v => !v.node.children)}
+                                    attrs={{
+                                        r: v => v.annotations[selectedLocationKey] === selectedLocation ? nodeWidth + 4 : nodeWidth + 1,
+                                        fill: "black"
+                                    }}/>
             <Nodes.Circle tooltip={{'data-tip': v => v.id, "data-for": "tip-label"}}
                           filter={(v => !v.node.children)}
                           attrs={{
