@@ -14,7 +14,6 @@ export default function useFetchTree(path,callback){
             .then(res=> res.text())
             .then(text=> {
                 let tree= processTree(parseNexus(text,{datePrefix: "|",dateFormat:"%Y-%m-%d"})[0]);
-                console.log(tree)
                 const externalNodes =getTips(tree);//.map(t=>t.name);
                 console.log(externalNodes.length)
                 for(const tip of externalNodes){

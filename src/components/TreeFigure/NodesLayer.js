@@ -4,18 +4,24 @@ import {Nodes,NodeBackgrounds,getTips, useFigtreeContext} from "figtreejs-react"
 import {max, min} from "d3-array";
 
 export default function NodesLayers(props){
-    const {colorScale,colorKey,setTree,tree,setRoottipContent,setTooltipContent} = props;
+    const {
+        colorScale, colorKey, setTree, tree, setRoottipContent,
+        setTooltipContent, selectedLocation, selectedLocationKey, setSelectedLocation
+    } = props;
     const {height} = useFigtreeContext.scales();
     const nodeWidth = min([10,max([2,height/2/getTips(tree).length])]);
     return(
         <>
-            <NodeBackgrounds.Circle filter={(v => !v.node.children)} attrs={{r: nodeWidth + 1, fill: "black"}}/>
+            <NodeBackgrounds.Circle filter={(v => !v.node.children)}
+                                    attrs={{
+                                        r: v => v.annotations[selectedLocationKey] === selectedLocation ? nodeWidth + 4 : nodeWidth + 1,
+                                        fill: "black"
+                                    }}/>
             <Nodes.Coalescent filter={(v => v.node.children && v.node.children.length > 2)}
                               attrs={{fill: v => (v.node.annotations[colorKey] ? colorScale(v.node.annotations[colorKey]) : "grey")}}
                               interactions={{
                                   "onClick": (v) => {
-                                      console.log(v);
-                                      setTree(v.node)
+                                      setSelectedLocation(null)
                                   }
                               }}/>
             <Nodes.Rectangle
@@ -43,8 +49,8 @@ export default function NodesLayers(props){
             <Nodes.Circle tooltip={{'data-tip': v => v.id, "data-for": "tip-label"}}
                           filter={(v => !v.node.children)}
                           attrs={{
-                              r: nodeWidth,
-                              fill: v => colorScale(v.node.annotations[colorKey]),
+                              r: v => v.annotations[selectedLocationKey] === selectedLocation ? nodeWidth + 3 : nodeWidth,
+                              fill: v => colorScale(v.annotations[colorKey]),
                               strokeWidth: 0,
                               stroke: "black"
                           }}
