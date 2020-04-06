@@ -21,6 +21,7 @@ export default function NodesLayers(props){
                                       setSelectedLocation(null)
                                   }
                               }}
+                              sortFactor={1}
             />
 
             <Nodes.Rectangle

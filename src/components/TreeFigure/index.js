@@ -32,7 +32,7 @@ export default function TreeFigure(props) {
             setColorScaleDomain({
                 country: tree.annotationTypes["country"].values,
                 Continent: tree.annotationTypes["Continent"].values
-            })
+            });
             setIsTreeLoaded(true)
         });
 
@@ -54,16 +54,16 @@ export default function TreeFigure(props) {
         return (
 
             <>
-                <svg viewBox={`0,0,${width},${height}`}>
-                    <rect width={width} height={height} fill={"none"} pointerEvents={"all"} onClick={() => {
-                        setTree(originalTree);
-                        setSelectedLocation(null)
-                    }}/>
-
-                    <FigTree width={width - margins.left - margins.right} height={height - margins.top - margins.bottom}
-                             data={tree}
-                             pos={{x: margins.left, y: margins.top}} getDateExtent={getDateRange} layout={layout}
+                <FigTree width={width} height={height} margins={margins}
+                         tree={tree}
+                         layout={layout}
                     >
+                    <rect width={width} height={height} transform={`translate(${-margins.left},${-margins.top})`}
+                          fill={"none"} pointerEvents={"all"}
+                          onClick={() => {
+                              setTree(originalTree);
+                              setSelectedLocation(null)
+                          }}/>
 
                         <Axis direction={"horizontal"} scale={timeScale} gap={10}
                               ticks={{number: 10, format: timeFormat("%m-%d"), padding: 20, style: {}, length: 6}}>
@@ -83,7 +83,6 @@ export default function TreeFigure(props) {
                                              setSelectedLocationKey(colorKey)
                                          }}/>
                     </FigTree>
-                </svg>
                 <ToolTips toottipContent={tooltipContent} tree={tree} roottipContent={roottipContent} colorKey={colorKey}/>
             </>
         )
