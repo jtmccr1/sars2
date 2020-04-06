@@ -13,7 +13,7 @@ const mapPannelFlexBoxCss = `display:flex;flex-direction:column;flex-wrap:nowrap
 
 function App() {
 
-    const [colorScaleDomain, setColorScaleDomain] = useState([]);
+    const [colorScaleDomain, setColorScaleDomain] = useState({country: [], Continent: []});
     const [isTreeLoaded, setIsTreeLoaded] = useState(false);
     const [isMapLoaded, setIsMapLoaded] = useState(false);
     const [colorKey, setColorKey] = useState("country");
@@ -22,7 +22,7 @@ function App() {
     const mapWidth = 400, mapHeight = 400;
 
     const scheme = schemeTableau10.concat(schemeSet3).concat(schemePaired);
-    const colorScale = scaleOrdinal().domain(colorScaleDomain).range(scheme);
+    const colorScale = scaleOrdinal().domain(colorScaleDomain[colorKey]).range(scheme);
 
     return (
         <div>

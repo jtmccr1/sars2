@@ -14,7 +14,6 @@ export default function NodesLayers(props){
         <>
 
             <Nodes.Coalescent filter={(v => v.node.children && v.node.children.length > 2)}
-                              sortFactor={-1}
                               attrs={{fill: v => (v.node.annotations[colorKey] ? colorScale(v.node.annotations[colorKey]) : "grey")}}
                               interactions={{
                                   "onClick": (v) => {

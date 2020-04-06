@@ -29,6 +29,10 @@ export default function TreeFigure(props) {
             setTree(tree);
             setOriginalTree(tree);
             setCountryContinentMap(map);
+            setColorScaleDomain({
+                country: tree.annotationTypes["country"].values,
+                Continent: tree.annotationTypes["Continent"].values
+            })
             setIsTreeLoaded(true)
         });
 
@@ -38,11 +42,6 @@ export default function TreeFigure(props) {
 
 
     if(display) {
-        if(originalTree){
-
-            setColorScaleDomain(originalTree.annotationTypes[colorKey].values)
-        }
-
 
         const timeScale = scaleTime().domain(getDateRange(tree)).range([0,(width-margins.left-margins.right)]);
         const activeLocations = [...tree.annotationTypes[colorKey].values].filter(l => !l.includes('+')); // filter out ambigous states
